@@ -9,10 +9,10 @@ function debounce(func, delay) {
 }
 
 // sfx
-const hit = new Audio("../assets/sfx/sfx_hit.wav");
-const die = new Audio("../assets/sfx/sfx_die.wav");
-const point = new Audio("../assets/sfx/sfx_point.wav");
-const wing = new Audio("../assets/sfx/sfx_wing.wav");
+const hit = new Audio("./assets/sfx/sfx_hit.wav");
+const die = new Audio("./assets/sfx/sfx_die.wav");
+const point = new Audio("./assets/sfx/sfx_point.wav");
+const wing = new Audio("./assets/sfx/sfx_wing.wav");
 
 hit.volume = 0.2;
 die.volume = 0.2;
@@ -47,7 +47,7 @@ let bird = {
 };
 
 birdImg = new Image();
-birdImg.src = "../assets/img/flappybird.png";
+birdImg.src = "./assets/img/flappybird.png";
 
 function drawBird() {
   birdImg.addEventListener("load", function () {
@@ -75,9 +75,9 @@ let pipeX = (window.innerHeight / 16) * 9;
 let pipeY = 0;
 
 let topPipeImg = new Image();
-topPipeImg.src = "../assets/img/toppipe.png";
+topPipeImg.src = "./assets/img/toppipe.png";
 let bottomPipeImg = new Image();
-bottomPipeImg.src = "../assets/img/bottompipe.png";
+bottomPipeImg.src = "./assets/img/bottompipe.png";
 
 function resizePipe() {
   pipeHeight = window.innerHeight * 0.8;

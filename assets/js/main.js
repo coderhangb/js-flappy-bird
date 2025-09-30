@@ -170,7 +170,13 @@ function update() {
   // bird
   velocityY += gravity;
   bird.y = Math.max(bird.y + velocityY, 0);
-  context.drawImage(birdImg, bird.x, bird.y, bird.width, bird.height);
+  if (birdImg.complete && birdImg.naturalWidth > 0) {
+    context.drawImage(birdImg, bird.x, bird.y, bird.width, bird.height);
+  } else {
+    birdImg.onload = function () {
+      context.drawImage(birdImg, bird.x, bird.y, bird.width, bird.height);
+    };
+  }
 
   if (!gameStart) return;
 

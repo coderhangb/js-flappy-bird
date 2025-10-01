@@ -146,7 +146,6 @@ body {
 }
 
 #board {
-  background-image: url(../img/flappybirdbg.png);
   background-size: contain;
 }
 

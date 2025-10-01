@@ -47,7 +47,6 @@ let bird = {
 };
 
 birdImg = new Image();
-birdImg.src = "./assets/img/flappybird.png";
 
 function drawBird() {
   birdImg.addEventListener("load", function () {
@@ -75,9 +74,7 @@ let pipeX = (window.innerHeight / 16) * 9;
 let pipeY = 0;
 
 let topPipeImg = new Image();
-topPipeImg.src = "./assets/img/toppipe.png";
 let bottomPipeImg = new Image();
-bottomPipeImg.src = "./assets/img/bottompipe.png";
 
 function resizePipe() {
   pipeHeight = window.innerHeight * 0.8;
@@ -85,16 +82,44 @@ function resizePipe() {
   pipeX = (window.innerHeight / 16) * 9;
 }
 
-// physic
-function setGameSpeed() {
-  if (window.innerWidth <= 575.98) {
-    return -2;
-  }
-  return -1;
+// dark mode
+let binLadenMode = false;
+const boardElement = document.getElementById("board");
+
+function updateMode() {
+  boardElement.style.backgroundImage = binLadenMode
+    ? "url(./assets/img/dark-bg.png)"
+    : "url(./assets/img/flappybirdbg.png)";
+
+  birdImg.src = binLadenMode
+    ? "./assets/img/dark-bird.png"
+    : "./assets/img/flappybird.png";
+
+  topPipeImg.src = binLadenMode
+    ? "./assets/img/dark-pipe.png"
+    : "./assets/img/toppipe.png";
+  bottomPipeImg.src = binLadenMode
+    ? "./assets/img/dark-pipe.png"
+    : "./assets/img/bottompipe.png";
+}
+updateMode();
+
+// turn on dark mode
+function turnOnDarkMode() {
+  binLadenMode = true;
+  updateMode();
 }
 
-let velocityX = setGameSpeed();
+// turn off dark mode
+function turnOffDarkMode() {
+  binLadenMode = false;
+  updateMode();
+}
+
+// physic
+let velocityX = window.innerHeight / 7.4;
 let velocityY = 0;
+let jumpForce = 0;
 let gravity = 0;
 let gameStart = false;
 let gameOver = false;
@@ -108,7 +133,8 @@ const debouncedResize = debounce(() => {
   resizeCanvas();
   resizeBird();
   resizePipe();
-}, 500);
+  velocityX = window.innerHeight / 7.4;
+}, 1000);
 
 window.addEventListener("resize", function () {
   debouncedResize();
@@ -125,7 +151,6 @@ window.addEventListener("load", function () {
   resizeBird();
 
   window.requestAnimationFrame(update);
-  setInterval(placePipes, 1500);
   window.addEventListener("keydown", function (e) {
     if (e.key == " " || e.code == "Space") {
       gameStart = true;
@@ -162,14 +187,20 @@ window.addEventListener("load", function () {
   });
 });
 
-function update() {
+let lastTime = 0;
+let pipeSpawnTimer = 0;
+let pipeSpawnInterval = 2;
+
+function update(currentTime) {
   requestAnimationFrame(update);
   if (gameOver) return;
+  const deltaTime = (currentTime - lastTime) / 1000;
+  lastTime = currentTime;
   context.clearRect(0, 0, board.width, board.height);
 
   // bird
-  velocityY += gravity;
-  bird.y = Math.max(bird.y + velocityY, 0);
+  velocityY += gravity * deltaTime;
+  bird.y = Math.max(bird.y + velocityY * deltaTime, 0);
   if (birdImg.complete && birdImg.naturalWidth > 0) {
     context.drawImage(birdImg, bird.x, bird.y, bird.width, bird.height);
   } else {
@@ -186,9 +217,16 @@ function update() {
   }
 
   // pipes
+  pipeSpawnTimer += deltaTime;
+
+  if (pipeSpawnTimer >= pipeSpawnInterval) {
+    placePipes();
+    pipeSpawnTimer = 0;
+  }
+
   for (let i = 0; i < pipesArr.length; i++) {
     let pipe = pipesArr[i];
-    pipe.x += velocityX;
+    pipe.x -= velocityX * deltaTime;
     context.drawImage(pipe.img, pipe.x, pipe.y, pipe.width, pipe.height);
 
     if (!pipe.passed && bird.x > pipe.x + pipe.width) {
@@ -261,8 +299,9 @@ function placePipes() {
 
 function moveBird() {
   if (godMod) return;
-  velocityY = -window.innerHeight / 250;
-  gravity = window.innerHeight / 10000;
+  jumpForce = window.innerHeight * 0.6;
+  gravity = window.innerHeight * 2;
+  velocityY = -jumpForce;
 }
 
 function isBirdCollapse(bird, pipe) {
